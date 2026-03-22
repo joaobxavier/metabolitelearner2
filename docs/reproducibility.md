@@ -2,26 +2,24 @@
 
 ## Repo Policy
 
-This repository does **not** commit the full study datasets or generated study artifacts by default.
+This repository now commits a reproducible snapshot of the original study's Python workflow workspace under `data/original_study/`.
 
-Excluded by design:
+Still excluded by design:
 
 - raw Agilent `.D` directories
-- full matrix CSV collections
-- extracted peak tables from the original study
-- generated workflow figures and parity outputs
+- ad hoc local rerun logs
+- unrelated future large datasets unless intentionally promoted
 
 ## Why
 
-The 2.0 repo is meant to stay lightweight and automation-friendly. Large historical assets belong in external storage or release artifacts, with explicit instructions for retrieval.
+The 2.0 repo is meant to stay automation-friendly while still carrying one canonical baseline dataset for development and regression checks. The committed snapshot is limited to processed matrix CSVs, KEGG references, and regenerated workflow outputs. Raw vendor directories remain out of git.
 
 ## Expected Reproducibility Pattern
 
 1. install the package in editable mode
-2. obtain the required dataset from its documented source
-3. place or symlink the dataset into a local non-tracked workspace
-4. run the workflow or experiment scripts
-5. save outputs under a non-tracked local directory
+2. use the committed baseline dataset in `data/original_study/` or restage it with the helper script
+3. run the workflow or experiment scripts
+4. compare results against the committed baseline outputs
 
 ## Data Documentation Standard
 
@@ -38,7 +36,7 @@ The default test suite must remain self-contained and runnable without full exte
 
 ## Local Data Workspace
 
-The repo-level `.gitignore` excludes `data/` so full study assets can live in the repository checkout without being committed.
+The repo-level `.gitignore` now allows `data/` to be tracked while still ignoring local log files under that tree.
 
 For the original study dataset, the expected local layout is:
 

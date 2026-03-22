@@ -6,7 +6,7 @@ MetaboLiteLearner 2.0 is a Python-first successor workspace for the original Met
 - hardening the Python implementation as the primary codebase,
 - and developing a companion paper that expands the claim that useful biological signal about metabolic rewiring can be recovered from fragmentation structure alone.
 
-This repo intentionally starts lean. It excludes the full legacy MATLAB workflow, full study datasets, and generated result artifacts. Instead, it keeps:
+This repo intentionally starts lean. It excludes the full legacy MATLAB workflow and most generated result artifacts. It now includes a committed snapshot of the original study's processed Python inputs and outputs under `data/original_study/`. The repo otherwise keeps:
 
 - the Python package baseline,
 - lightweight tests,
@@ -40,7 +40,7 @@ python -m unittest discover -s tests
 
 ## Reproducibility and Data
 
-Full study assets are intentionally not committed here. See:
+The repository now includes the staged original-study dataset workspace under `data/original_study/`. See:
 
 - [docs/reproducibility.md](docs/reproducibility.md)
 - [docs/research_positioning.md](docs/research_positioning.md)
