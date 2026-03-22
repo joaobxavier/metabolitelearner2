@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+dist/
+build/
+*.egg-info/
+.DS_Store
+.venv/
+.idea/
+.vscode/
+paper/figures/generated/
+outputs/
+data/
