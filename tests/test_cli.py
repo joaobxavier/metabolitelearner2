@@ -1,3 +1,5 @@
+import os
+import subprocess
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -84,6 +86,110 @@ class AgilentConversionTests(unittest.TestCase):
 
         self.assertEqual(converted.shape, EXPECTED_SHAPE)
         np.testing.assert_allclose(converted, reference)
+
+
+class PreviousDatasetHelperTests(unittest.TestCase):
+    def test_run_previous_dataset_workflow_forwards_paths_and_flags(self) -> None:
+        repo_root = Path(__file__).resolve().parents[1]
+        helper = repo_root / "scripts" / "run_previous_dataset_workflow.sh"
+
+        with TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            workspace = root / "workspace"
+            log_path = root / "workflow.log"
+            stage_args_path = root / "stage-args.txt"
+            python_args_path = root / "python-args.txt"
+
+            stage_script = root / "stage_previous_dataset.sh"
+            stage_script.write_text(
+                "\n".join(
+                    [
+                        "#!/usr/bin/env bash",
+                        "set -euo pipefail",
+                        'printf "%s\\n" "$@" > "$STAGE_ARGS_PATH"',
+                        'mkdir -p "$1/gcmsCSVs" "$1/extractedPeaks" "$1/folds" "$1/kegg"',
+                        ': > "$1/kegg/keggCompoundsWithFiehlibSpectrum.mat"',
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            python_bin = root / "python-bin"
+            python_bin.write_text(
+                "\n".join(
+                    [
+                        "#!/usr/bin/env bash",
+                        "set -euo pipefail",
+                        'printf "%s\\n" "$@" > "$PYTHON_ARGS_PATH"',
+                        "echo workflow-called",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            stage_script.chmod(0o755)
+            python_bin.chmod(0o755)
+
+            env = os.environ.copy()
+            env.update(
+                {
+                    "STAGE_SCRIPT": str(stage_script),
+                    "PYTHON_BIN": str(python_bin),
+                    "STAGE_ARGS_PATH": str(stage_args_path),
+                    "PYTHON_ARGS_PATH": str(python_args_path),
+                }
+            )
+
+            subprocess.run(
+                [
+                    "bash",
+                    str(helper),
+                    "--workspace",
+                    str(workspace),
+                    "--log",
+                    str(log_path),
+                    "--kfold-learn",
+                    "2",
+                    "--max-components",
+                    "5",
+                    "--nrandomized",
+                    "7",
+                    "--shuffle-test",
+                    "--no-regenerate-peaks",
+                ],
+                check=True,
+                cwd=repo_root,
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(stage_args_path.read_text(encoding="utf-8").splitlines(), [str(workspace)])
+
+            expected_python_args = [
+                "-m",
+                "metabolite_learner.cli",
+                "run-workflow",
+                "--gcms-csv-dir",
+                str(workspace / "gcmsCSVs"),
+                "--extracted-peaks-dir",
+                str(workspace / "extractedPeaks"),
+                "--folds-dir",
+                str(workspace / "folds"),
+                "--kegg-mat-path",
+                str(workspace / "kegg" / "keggCompoundsWithFiehlibSpectrum.mat"),
+                "--kfold-learn",
+                "2",
+                "--max-components",
+                "5",
+                "--nrandomized",
+                "7",
+                "--shuffle-test",
+            ]
+            self.assertEqual(python_args_path.read_text(encoding="utf-8").splitlines(), expected_python_args)
+            self.assertEqual(log_path.read_text(encoding="utf-8").strip(), "workflow-called")
 
 
 if __name__ == "__main__":

@@ -35,3 +35,36 @@ Any future dataset integration should document:
 ## Default Testing Policy
 
 The default test suite must remain self-contained and runnable without full external study assets. Data-dependent integration tests can be added later, but they should be clearly separated from the lightweight default suite.
+
+## Local Data Workspace
+
+The repo-level `.gitignore` excludes `data/` so full study assets can live in the repository checkout without being committed.
+
+For the original study dataset, the expected local layout is:
+
+```text
+data/original_study/
+  gcmsCSVs/
+  kegg/
+  extractedPeaks/
+  folds/
+```
+
+Stage the minimal workflow inputs with:
+
+```bash
+./scripts/stage_previous_dataset.sh
+```
+
+That script prefers the existing local checkout at `/Users/jxavier/dev/metaboliteLearner` and otherwise downloads `gcmsCSVs/` and `kegg/` from the original GitHub repository.
+
+Run the end-to-end workflow against the staged data with:
+
+```bash
+metabolitelearner2 run-workflow \
+  --gcms-csv-dir data/original_study/gcmsCSVs \
+  --extracted-peaks-dir data/original_study/extractedPeaks \
+  --folds-dir data/original_study/folds \
+  --kegg-mat-path data/original_study/kegg/keggCompoundsWithFiehlibSpectrum.mat \
+  --regenerate-peaks
+```
