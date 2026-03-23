@@ -10,3 +10,4 @@
 8. Kind T, Wohlgemuth G, Lee DY, et al. FiehnLib: mass spectral and retention index libraries for metabolomics based on quadrupole and time-of-flight gas chromatography/mass spectrometry. *Anal Chem*. 2009;81:10038-10048.
 9. Lai Z, Fiehn O. Mass spectral fragmentation of trimethylsilylated small molecules. *Mass Spectrom Rev*. 2018;37:245-257.
 10. Xavier JB. Machine learning of cellular metabolic rewiring in metastatic breast cancer using fragmentation spectra. *Biology Methods and Protocols*. 2024;9(1):bpae048.
+11. Lee DD, Seung HS. Learning the parts of objects by non-negative matrix factorization. *Nature*. 1999;401:788-791.

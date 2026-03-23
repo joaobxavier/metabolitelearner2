@@ -1,57 +1,52 @@
 # Results
 
-This section follows the published 2024 MetaboLiteLearner results [10]. Because the manuscript is being developed as a reproducibility-first restatement of that study, the distinction between the published claim set and the current Python reimplementation is stated explicitly before the figures.
+The present MetaboLiteLearner 2.0 result set comes from the staged MDA-MB-231 benchmark run used throughout this study. On that dataset, the joint extractor learned 12 usable components, the downstream mixed-model stage retained 12 fold-change peaks, and the partial least squares learner selected 4 latent components. This section reports that result set directly rather than treating the 2024 paper as the controlling reference.
 
-| Quantity | Published 2024 study | Reproducible Python reimplementation |
-| --- | --- | --- |
-| Spectra retained after filtering | 153 | 125 |
-| Selected latent components | 5 | 3 |
-| Role in this draft | Scientific claims reported in the text | Supporting figure rendering and implementation reference |
+## Joint component extraction yields a compact but visibly split representation
 
-The quantitative claims below report the published study. The embedded figures are reproducible renderings of the corresponding analysis stages and are included to give the manuscript stable visual support while the 2.0 experiments are still being developed.
+The first result is the extraction stage itself. Starting from the aligned sample matrices, the 2.0 workflow produced 12 learned components with explicit chromatographic profiles, spectra, abundance vectors, effect summaries, and post hoc library matches. The extracted component table is dominated by two matched classes, with 7 components assigned most strongly to carbohydrates and 5 to organic acids. Median supervision `R^2` across components is approximately `0.99`, indicating that the extracted abundance vectors remain strongly aligned with the study design.
 
-## The MetaboLiteLearner Open Dataset
+This result is useful but not yet fully parsimonious. The components are concentrated in a handful of retention-time neighborhoods, especially around 6.5 minutes and 17.1-17.3 minutes, where several nearby components appear instead of a smaller number of broader structures. That oversplitting is the main current weakness of the 2.0 representation. It does not prevent the model from learning downstream structure, but it does make the extracted representation more fragmented than the chemistry is likely to be.
 
-The central result of the published workflow was the construction of the MetaboLiteLearner Open Dataset from GC/MS scan-mode data without requiring prior metabolite identification or deconvolution. From the MDA-MB-231 parental, brain-homing, lung-homing, and blank-media conditions, the preprocessing pipeline yielded 153 unique spectra paired with log2 fold-change labels for brain-homing and lung-homing cells relative to the parental lineage [10].
+The joint extractor nevertheless changes the unit of analysis in a way that matters. Instead of beginning from TIC windows and summed spectra, the workflow now hands forward learned component abundances and spectra. The downstream fold-change table therefore represents supervised component-level effects rather than heuristic peak-window summaries.
 
-That change in unit of analysis is the key result of the workflow. Instead of treating each biological sample as a single supervised example, MetaboLiteLearner treats each metabolite spectrum as a data point. The 36-sample experiment is therefore expanded into a metabolite-centered dataset that retains the measured EI fragmentation structure while making the prediction task tractable.
+## The 2.0 learner selects four latent components
 
-## Predictive performance and component selection
-
-Cross-validation across 1 to 30 latent components showed the expected bias-variance tradeoff. Training error decreased monotonically as components were added, while test error reached a minimum at 11 components before rising again. Using the one-standard-error rule, the published analysis selected a five-component operating model.
-
-That five-component model achieved a correlation of rho = 0.39 between predicted and observed log2 fold changes, with P <= 0.01. The shuffle control reinforced that this was not a chance-level association: when the fold-change labels were randomized 1,000 times, prediction error was consistently worse than on the original data.
+The downstream learner was fit on the 12 retained component spectra and the corresponding brain-homing and lung-homing fold-change estimates. Leave-one-out cross-validation reached its minimum error at 6 latent components, but the one-standard-error rule selected a 4-component operating model. That model achieved a fitted correlation of `r = 0.92` (`P = 3.2 x 10^-10`) and a leave-one-out correlation of `r = 0.67` (`P = 3.1 x 10^-4`) between observed and predicted log2 fold changes.
 
 ![Model-selection and prediction diagnostics.](figures/figure_1_predictive_performance.png)
 
-*Figure 1. Model-selection and prediction diagnostics. The panel shows training and cross-validation error across latent components together with observed-versus-predicted fold-change plots. The scientific interpretation in the text follows the published five-component analysis, while the rendering shown here is a reproducible implementation of the same evaluation logic.*
+*Figure 1. Model-selection and prediction diagnostics for the present MetaboLiteLearner 2.0 analysis. The selected model uses four latent components after one-standard-error selection from a cross-validation minimum at six components. The figure summarizes training fit, cross-validation fit, and the observed-versus-predicted relationship for the 12 retained fold-change peaks.*
 
-## Variance explained and latent structure
+These numbers are not yet the statement of a universal predictive method. They are evidence that the component-first representation preserves enough structure for the learner to recover nontrivial response geometry even after moving away from the older peak-window front end.
 
-The five-component model trained on the full published dataset explained 32% of the predictor variance and 68% of the response variance. That asymmetry is important: the model preserves only a modest fraction of the raw spectral variance, yet it captures most of the variance in the biologically relevant response space.
+## Four latent components retain most of the response structure
 
-The latent structure was also interpretable. Components 1 and 3 corresponded to metabolites that decreased in both organ-homing lineages, whereas components 2 and 5 captured metabolites that increased in both. Component 1 accounted for 27% of the response variance, while component 4 accounted for just 4.9%, yet still separated brain-homing from lung-homing behavior rather than summarizing a shared shift. In the manuscript, that component-level decomposition was the main reason the model could be described as both predictive and biologically informative.
+The 4-component model explains approximately `96.6%` of the predictor variance and `84.0%` of the response variance. The first latent component alone captures `58.8%` of response variance, while the remaining components partition the residual structure rather than collapsing it into noise. This is the main compactness result of the 2.0 run: the current workflow produces a small, inspectable latent model without reducing the problem to a single dominant axis.
 
 ![Variance explained by latent components.](figures/figure_2_variance_explained.png)
 
-*Figure 2. Variance explained by latent components in predictor and response space. The figure illustrates the asymmetry between spectral variance retained in X and biologically relevant variance captured in Y. The numerical variance summary discussed in the text follows the published analysis.*
+*Figure 2. Variance explained by the four selected latent components in predictor and response space. The current 2.0 model is highly compressive in Y while still preserving most of the structure present in the learned spectral representation.*
 
-## Fragment-level interpretation
+## The learned space remains interpretable after joint extraction
 
-The biplot of fragment coefficients gave the first biochemical clues. The published analysis highlighted m/z 104 as a fragment associated with increases in both cell types and m/z 306 as a fragment associated with decreases. These were interpreted as structural signatures, not direct metabolite identifications.
-
-Reference-spectrum projections extended that interpretation. A curated set of 263 KEGG and Fiehn reference spectra projected into the latent space suggested that many metabolites changed in the same direction across both metastatic lineages, while carbohydrates and nucleic-acid-related compounds were more strongly associated with lung-specific increases. Within the latent decomposition, amino acids largely followed the shared-decrease trend captured by component 1, whereas carbohydrates and deoxyribonucleosides contributed more strongly to the lineage-separating component 4.
+The interpretability figure connects the PLS loadings back to the joint extractor outputs and to post hoc library projection. In the present analysis, the learned space remains chemically readable despite the component splitting problem. The dominant projected classes are carbohydrates and organic acids, and the response-space geometry still separates shared abundance shifts from lineage-specific behavior. This is the main biological payoff of the 2.0 rewrite: learning the intermediate representation does not destroy interpretability.
 
 ![Fragment-level and reference-projection interpretation figure.](figures/figure_3_interpretability.png)
 
-*Figure 3. Fragment-level and reference-projection interpretation. The left panels summarize fragment coefficients and latent-component orientation in fold-change space, while the right panels show class-level distributions for projected KEGG/Fiehn reference spectra. The layout shown here is restricted to the latent components retained in the reproducible Python implementation so that the interpretability panels remain readable and non-empty.*
+*Figure 3. Fragment-level and reference-projection interpretation for the present MetaboLiteLearner 2.0 analysis. The left panels show response-space coefficients and latent-component orientation, while the right panels show projected class structure from post hoc reference matching. The figure is interpretable enough to support biological discussion, but the repeated retention-time neighborhoods also make the current oversplitting limitation visible.*
 
-## Chance control and interpretation boundary
+## Comparison with the earlier MetaboLiteLearner workflow
 
-The shuffle test is the right boundary for interpretation. It shows that MetaboLiteLearner recovered more than an arbitrary correlation structure, because randomized fold-change labels consistently produced worse prediction error. At the same time, the model does not prove mechanism on its own. The learned latent components summarize covariance between fragmentation patterns and rewiring labels, which makes them useful for prioritization and hypothesis generation, but not sufficient for pathway assignment without follow-up chemistry.
+The earlier MetaboLiteLearner study remains the right prior-work comparison because it established the feasibility of fragmentation-first learning [10]. The present manuscript asks a different question: what happens when the intermediate representation is learned rather than fixed by peak windows?
 
-Taken together, the published results show that EI fragmentation spectra can carry enough structure to predict metabolite-level rewiring in a small, unidentified metabolomics dataset, and that the resulting latent space contains both shared and lineage-specific signals relevant to metastatic adaptation [10].
+| Workflow | Front end | Learned or retained entities | Selected latent components |
+| --- | --- | --- | --- |
+| 2024 MetaboLiteLearner | Bulk peak extraction and summed spectra | 153 retained spectra | 5 |
+| MetaboLiteLearner 2.0 (present study) | Joint component extraction | 12 retained components / 12 fold-change peaks | 4 |
+
+The comparison should not be read as a simple bigger-versus-smaller table. The 2.0 result set is more compressed because the extractor itself has changed. The main value of the current paper is therefore methodological: it shows that fragmentation-first learning still works after replacing fixed-window extraction with a learned component representation, while also making the main remaining failure mode explicit.
 
 ## Reproducibility note
 
-The executable workflow that generated the renderings used here is implemented in [../metabolite_learner/workflow.py](../metabolite_learner/workflow.py) and [../metabolite_learner/pls.py](../metabolite_learner/pls.py). The manuscript figure assets are [figures/figure_1_predictive_performance.png](figures/figure_1_predictive_performance.png), [figures/figure_2_variance_explained.png](figures/figure_2_variance_explained.png), and [figures/figure_3_interpretability.png](figures/figure_3_interpretability.png).
+The executable workflow that generated these results is implemented in [../metabolite_learner/joint_extract.py](../metabolite_learner/joint_extract.py), [../metabolite_learner/workflow.py](../metabolite_learner/workflow.py), and [../metabolite_learner/pls.py](../metabolite_learner/pls.py). The staged run summarized here is documented in [../docs/reports/previous_dataset_run.md](../docs/reports/previous_dataset_run.md).

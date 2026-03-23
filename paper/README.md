@@ -1,37 +1,42 @@
 # Companion Paper Workspace
 
-This directory now contains the first full Markdown draft for the MetaboLiteLearner 2.0 companion paper. The current text is intentionally written as a disciplined restatement of the published 2024 manuscript so the repo starts from a concrete prior version rather than from outline bullets alone.
+This directory contains the Markdown-first draft of the MetaboLiteLearner 2.0 paper. The manuscript now treats the current 2.0 workflow and its staged outputs as the primary result set, with the 2024 paper retained only as prior work and comparison material.
 
 ## Current Structure
 
-- `00_abstract.md`: startup abstract based on the published paper, with links to the source PDF and current baseline assets
-- `01_introduction.md`: motivation, problem framing, and the representation-first argument
-- `02_methods.md`: published workflow restated against the current Python implementation
-- `03_results.md`: published results narrative, with the current repo baseline used as supporting infrastructure rather than as the source of scientific claims
-- `04_discussion.md`: interpretation, limitations, and forward-looking positioning for 2.0
-- `05_references.md`: minimal bibliography for the current draft
-- `outline.md`: updated paper map showing how the current section files fit together
-- `source_papers/`: archived source PDFs, including the published Methods paper
-- `notes/`: supporting notes and future drafting material
-- `figures/`: manuscript-specific figure assets to be added as the 2.0 paper evolves
-- `peer_review_critique.md`: first-pass external-review style critique of the draft
-- `peer_review_reassessment.md`: second-pass check of what the revision improved and what remains
-- `bibliography/`: citation assets and future reference files
+- `00_abstract.md`: paper abstract for the 2.0 manuscript
+- `01_introduction.md`: motivation, problem framing, and why fragmentation structure can be predictive before full identification
+- `02_methods.md`: the current workflow description, including joint extraction, fold-change estimation, and the learner
+- `03_results.md`: the current results narrative centered on 12 joint components, 12 fold-change peaks, and 4 latent components
+- `04_discussion.md`: interpretation, limitations, and how the 2.0 workflow should be used in practice
+- `05_references.md`: bibliography for the draft
+- `outline.md`: the section map for the replacement paper
+- `source_papers/`: archived source PDFs, including the published 2024 Methods paper
+- `figures/`: paper-facing figure assets for the current draft
+- `notes/`: working notes and draft support material
 
 ## Writing Principle
 
-The current manuscript pass keeps two things separate:
+The paper now follows a simple rule:
 
-1. the **published paper's claims**, which remain the source of record for the initial scientific narrative
-2. the **current repository baseline**, which provides code paths, figures, and reproducible outputs that make that narrative auditable in Python
+1. the 2.0 workflow and its staged outputs are the source of record for the manuscript
+2. the 2024 paper is used only for concise historical comparison
+3. all claims in `03_results.md` should track the current code and current figure set, not the older narrative by default
 
-That separation is deliberate. The next drafting rounds can extend the claims only after the 2.0 experiments exist.
+That keeps the draft anchored in the current paper result set while still acknowledging where the idea came from.
 
 ## Main Linked Assets
 
-- published paper: [`source_papers/MetaboLiteLearner_published_paper.pdf`](source_papers/MetaboLiteLearner_published_paper.pdf)
-- current Python workflow: [`../metabolite_learner/workflow.py`](../metabolite_learner/workflow.py)
-- current learner implementation: [`../metabolite_learner/pls.py`](../metabolite_learner/pls.py)
+- current paper figures: [`figures/figure_1_predictive_performance.png`](figures/figure_1_predictive_performance.png), [`figures/figure_2_variance_explained.png`](figures/figure_2_variance_explained.png), [`figures/figure_3_interpretability.png`](figures/figure_3_interpretability.png)
+- current workflow: [`../metabolite_learner/workflow.py`](../metabolite_learner/workflow.py)
+- joint extractor: [`../metabolite_learner/joint_extract.py`](../metabolite_learner/joint_extract.py)
+- learner implementation: [`../metabolite_learner/pls.py`](../metabolite_learner/pls.py)
 - staged baseline data and outputs: [`../data/original_study`](../data/original_study)
-- previous baseline run report: [`../docs/reports/previous_dataset_run.md`](../docs/reports/previous_dataset_run.md)
-- paper revision plan: [`../plans/paper_revision_plan.md`](../plans/paper_revision_plan.md)
+- baseline run report: [`../docs/reports/previous_dataset_run.md`](../docs/reports/previous_dataset_run.md)
+
+## Drafting Notes
+
+- keep the result section centered on the current 12/12/4 baseline
+- keep the prior 2024 paper as a short comparison point only
+- keep the paper body manuscript-like and confine most implementation pointers to methods/reproducibility notes
+- avoid reintroducing placeholder language from the bootstrap draft

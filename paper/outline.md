@@ -2,39 +2,46 @@
 
 ## Working Title
 
-MetaboLiteLearner 2.0: learning biologically useful metabolic rewiring signal from fragmentation structure alone
+MetaboLiteLearner 2.0: joint component extraction and fragmentation-space learning for metabolic rewiring
 
 ## Current Draft Logic
 
-The manuscript currently functions as a "write up the previous version first" pass. That means the immediate goal is not to claim a new 2.0 result set, but to restate the published 2024 paper in a cleaner Markdown structure while attaching it to the current Python codebase and baseline assets in this repository.
+This is a full replacement paper. The manuscript should report the present 2.0 workflow and its outputs as the primary result set, while using the 2024 study only as prior work and concise comparison. The draft should read like a methods/results paper, not like a repository transition note.
 
 ## Section Map
 
 1. Abstract
-   The problem, the fragmentation-first representation, the original validation result, and the 2.0 framing boundary.
+   The problem, the joint-component representation, the current 12/12/4 baseline, and the main balanced claim for 2.0.
 2. Introduction
-   Why metabolite identification is a bottleneck, why fragmentation structure can be predictive before identification, and why interpretability matters.
+   Why metabolite identification remains a bottleneck, why the representation stage matters, and why learning the intermediate GC/MS objects is worth reporting.
 3. Methods
-   The published workflow restated through the current Python implementation:
-   data ingestion, peak extraction, fold-change estimation, PLSR/SIMPLS learning, validation, and interpretability outputs.
+   Study system, aligned GC/MS matrices, supervised nonnegative component extraction, fold-change estimation, PLS learning, and post hoc reference projection.
 4. Results
-   The published result narrative:
-   the 153-spectrum MLOD, component selection, predictive fit, variance explained, fragment-level interpretation, KEGG/Fiehn projections, and the shuffle-test control.
+   The current baseline: 12 joint components, 12 fold-change peaks, 4 latent components, predictive diagnostics, variance explained, interpretability, and concise comparison with the earlier workflow.
 5. Discussion
-   What the model learns, what it does not learn, where identification still matters, and what a 2.0 expansion should test next.
+   What the model learns statistically and biologically, where the current baseline is useful, what still requires validation, and why oversplitting is the next algorithmic target.
 6. References
-   Minimal bibliography supporting the current draft while fuller citation management is still being built.
+   Current bibliography for the replacement paper.
+
+## Results Emphasis
+
+- lead with the current joint-extractor output rather than with historical context
+- describe the 12-peak fold-change table as the supervised response set
+- use the 4-component learner fit as the compact predictive model
+- keep the 2024 paper to one concise comparison paragraph
+- tie each result subsection to the current paper figures in `paper/figures/`
 
 ## Near-Term Writing Tasks
 
-- tighten the prose so it reads as a manuscript rather than as a repository narrative
-- add citations into `bibliography/`
-- export paper-facing figures into `paper/figures/`
-- mark exactly where the future 2.0 experiments will replace or extend the published-paper narrative
+- keep the prose manuscript-like and reduce visible repo scaffolding in the main text
+- align figure captions with the current 2.0 outputs
+- keep citations matched to the actual method description
+- make sure the Methods/Results boundary stays clean
+- keep historical comparison brief and explicitly secondary
 
 ## Future 2.0 Expansion Points
 
-- benchmark updated Python results against the published MATLAB-era claims
-- add clearer failure analysis and uncertainty reporting
-- test whether fragmentation-space learning transfers across datasets, sample-prep regimes, or instrument classes
-- separate "published prior result" text from "new 2.0 contribution" text once the new experiments exist
+- benchmark the current baseline against additional datasets
+- test how stable the joint extractor is when the sample tensor changes
+- evaluate whether the 4-component fit remains the right compact summary outside this staged run
+- extend the discussion once new experimental results exist
