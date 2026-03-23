@@ -22,6 +22,12 @@ Each learned component map is converted into a chromatographic profile and an EI
 2. a fragmentation spectrum,
 3. a sample-abundance vector.
 
+Figure 1 summarizes that logic explicitly. Each aligned sample matrix is one slice of the input tensor, the factorization learns a set of shared component maps together with sample-specific weights, and each map is then split into a chromatogram and a spectrum. The approximation can be read in the forward direction as a decomposition and in the reverse direction as a reconstruction: the original signal is recovered approximately by summing, over components, the sample abundance multiplied by the corresponding chromatogram and spectrum.
+
+![Diagram of the joint decomposition used in MetaboLiteLearner 2.0.](figures/joint_decomposition_logic.png)
+
+*Figure 1. Logic of the MetaboLiteLearner 2.0 joint decomposition. Aligned GC/MS matrices from individual samples are stacked into an input tensor over retention time, m/z, and sample axes. The tensor is unfolded to a sample-by-feature matrix for supervised nonnegative factorization, which learns sample-specific component abundances and shared component maps. Each component map is then split into a chromatographic profile and a fragmentation spectrum. The learned objects can be recombined to approximate the original signal as `X_hat(rt, mz, s) = sum_k c(s, k) × a_k(rt) × b_k(mz)`.*
+
 The extracted components are written back into familiar metabolomics tables. Each row is summarized by a peak-like record containing its apex retention time, start and end boundaries, half-height width, reconstruction fraction, and supervision score. This gives the 2.0 workflow a direct bridge from learned factors to analyzable metabolomics objects without collapsing the signal into heuristic TIC windows at the start.
 
 ## Component abundance outputs and statistical filtering

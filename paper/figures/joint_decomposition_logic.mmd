@@ -1,0 +1,51 @@
+%%{init: {'theme': 'neutral', 'flowchart': {'curve': 'linear', 'nodeSpacing': 30, 'rankSpacing': 40}}}%%
+flowchart LR
+    subgraph Input["Input construction"]
+        S1["Sample GC/MS matrix X₁(rt, mz)<br/>rows = retention-time bins<br/>columns = m/z bins"]
+        S2["Sample GC/MS matrix X₂(rt, mz)<br/>same aligned grid"]
+        SN["Sample GC/MS matrix Xₙ(rt, mz)<br/>one matrix per sample / cell state"]
+        Stack["Stack aligned sample matrices along the sample axis<br/>X(rt, mz, sample)"]
+        Unfold["Unfold tensor to sample-by-feature matrix<br/>X(sample, rt × mz)"]
+        S1 --> Stack
+        S2 --> Stack
+        SN --> Stack
+        Stack --> Unfold
+    end
+
+    subgraph Learn["Joint decomposition"]
+        Factor["Supervised nonnegative factorization<br/>learn sample weights c(s, k)<br/>and component maps M_k(rt, mz)"]
+        Split["For each learned component map<br/>M_k(rt, mz) ≈ a_k(rt) ⊗ b_k(mz)"]
+        Unfold --> Factor --> Split
+    end
+
+    subgraph Output["Component outputs"]
+        Chrom["Chromatogram a_k(rt)<br/>retention-time profile"]
+        Spec["Spectrum b_k(mz)<br/>EI fragment profile"]
+        Abund["Abundance c(s, k)<br/>sample-specific component weight"]
+        Tables["Written outputs<br/>tblComponentChromatograms.csv<br/>tblComponentSpectra.csv<br/>tblComponentAbundance.csv<br/>tblComponents.csv"]
+        Effects["Downstream statistics<br/>ANOVA + mixed-model fold changes"]
+        Matches["Post hoc interpretation<br/>best Fiehn / KEGG reference match"]
+        Split --> Chrom
+        Split --> Spec
+        Factor --> Abund
+        Chrom --> Tables
+        Spec --> Tables
+        Abund --> Tables
+        Abund --> Effects
+        Spec --> Matches
+    end
+
+    Reconstruct["Approximate reconstruction of the original tensor<br/>X̂(rt, mz, s) = Σ_k c(s, k) × a_k(rt) × b_k(mz)"]
+    Chrom --> Reconstruct
+    Spec --> Reconstruct
+    Abund --> Reconstruct
+
+    classDef process fill:#edf3f8,stroke:#567a9b,color:#16324f;
+    classDef data fill:#f9f2df,stroke:#a9842a,color:#5c4600;
+    classDef output fill:#eaf6ea,stroke:#5c8b5c,color:#214821;
+    classDef note fill:#f6e9ef,stroke:#a05c7a,color:#5e223c;
+
+    class S1,S2,SN,Stack,Unfold data;
+    class Factor,Split process;
+    class Chrom,Spec,Abund,Tables,Effects,Matches output;
+    class Reconstruct note;

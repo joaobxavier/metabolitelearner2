@@ -10,7 +10,7 @@ The chromatogram overview makes the current extractor behavior explicit. The top
 
 ![Average TIC and learned component chromatograms aligned by retention time.](figures/component_chromatogram_overview.png)
 
-*Figure 1. Average TIC overview and local component chromatograms for the 12 learned MetaboLiteLearner 2.0 components. The top panel shows the normalized mean TIC for parental, brain-homing, lung-homing, and media samples across the full run. The 12 aligned panels below show each learned component chromatogram in black over the corresponding local mean TIC segment for each sample type. The figure is intended to make the extracted representation legible: components follow real chromatographic structure, but repeated neighborhoods around 6.5 minutes and 17.1-17.3 minutes reveal the current oversplitting limitation directly.*
+*Figure 2. Average TIC overview and local component chromatograms for the 12 learned MetaboLiteLearner 2.0 components. The top panel shows the normalized mean TIC for parental, brain-homing, lung-homing, and media samples across the full run. The 12 aligned panels below show each learned component chromatogram in black over the corresponding local mean TIC segment for each sample type. The figure is intended to make the extracted representation legible: components follow real chromatographic structure, but repeated neighborhoods around 6.5 minutes and 17.1-17.3 minutes reveal the current oversplitting limitation directly.*
 
 ## The extracted spectra remain chemically structured under post hoc reference matching
 
@@ -20,7 +20,7 @@ The match grid shows that the learned spectra are not arbitrary basis vectors. A
 
 ![Learned spectra and best available post hoc reference matches for all 12 components.](figures/component_reference_matches.png)
 
-*Figure 2. Learned component spectra and best available post hoc Fiehn/KEGG reference matches for the 12 extracted components. Each panel compares the normalized learned spectrum against the best-matching reference spectrum from the staged library asset and reports the cosine similarity. Because the tracked reference table in this repository is class-level, the labels should be interpreted as best available chemical classes rather than definitive metabolite identities.*
+*Figure 3. Learned component spectra and best available post hoc Fiehn/KEGG reference matches for the 12 extracted components. Each panel compares the normalized learned spectrum against the best-matching reference spectrum from the staged library asset and reports the cosine similarity. Because the tracked reference table in this repository is class-level, the labels should be interpreted as best available chemical classes rather than definitive metabolite identities.*
 
 ## The 2.0 learner selects four latent components
 
@@ -28,7 +28,7 @@ The downstream learner was fit on the 12 retained component spectra and the corr
 
 ![Model-selection and prediction diagnostics.](figures/figure_1_predictive_performance.png)
 
-*Figure 3. Model-selection and prediction diagnostics for the present MetaboLiteLearner 2.0 analysis. The selected model uses four latent components after one-standard-error selection from a cross-validation minimum at six components. The figure summarizes training fit, cross-validation fit, and the observed-versus-predicted relationship for the 12 retained fold-change peaks.*
+*Figure 4. Model-selection and prediction diagnostics for the present MetaboLiteLearner 2.0 analysis. The selected model uses four latent components after one-standard-error selection from a cross-validation minimum at six components. The figure summarizes training fit, cross-validation fit, and the observed-versus-predicted relationship for the 12 retained fold-change peaks.*
 
 These numbers are not yet the statement of a universal predictive method. They are evidence that the component-first representation preserves enough structure for the learner to recover nontrivial response geometry even after moving away from the older peak-window front end.
 
@@ -38,7 +38,7 @@ The 4-component model explains approximately `96.6%` of the predictor variance a
 
 ![Variance explained by latent components.](figures/figure_2_variance_explained.png)
 
-*Figure 4. Variance explained by the four selected latent components in predictor and response space. The current 2.0 model is highly compressive in Y while still preserving most of the structure present in the learned spectral representation.*
+*Figure 5. Variance explained by the four selected latent components in predictor and response space. The current 2.0 model is highly compressive in Y while still preserving most of the structure present in the learned spectral representation.*
 
 ## The learned space remains interpretable after joint extraction
 
@@ -46,7 +46,7 @@ The interpretability figure connects the PLS loadings back to the joint extracto
 
 ![Fragment-level and reference-projection interpretation figure.](figures/figure_3_interpretability.png)
 
-*Figure 5. Fragment-level and reference-projection interpretation for the present MetaboLiteLearner 2.0 analysis. The left panels show response-space coefficients and latent-component orientation, while the right panels show projected class structure from post hoc reference matching. The figure is interpretable enough to support biological discussion, but the repeated retention-time neighborhoods also make the current oversplitting limitation visible.*
+*Figure 6. Fragment-level and reference-projection interpretation for the present MetaboLiteLearner 2.0 analysis. The left panels show response-space coefficients and latent-component orientation, while the right panels show projected class structure from post hoc reference matching. The figure is interpretable enough to support biological discussion, but the repeated retention-time neighborhoods also make the current oversplitting limitation visible.*
 
 ## Comparison with the earlier MetaboLiteLearner workflow
 
