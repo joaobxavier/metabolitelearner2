@@ -17,11 +17,31 @@ class CliParserTests(unittest.TestCase):
         parser = build_parser()
         args = parser.parse_args(["run-workflow"])
         self.assertEqual(args.command, "run-workflow")
+        self.assertEqual(args.extractor, "joint-components")
 
     def test_run_workflow_shuffle_test_flag_parses(self) -> None:
         parser = build_parser()
         args = parser.parse_args(["run-workflow", "--shuffle-test"])
         self.assertTrue(args.shuffle_test)
+
+    def test_extract_peaks_joint_component_flags_parse(self) -> None:
+        parser = build_parser()
+        args = parser.parse_args(
+            [
+                "extract-peaks",
+                "gcmsCSVs",
+                "extractedPeaks",
+                "--extractor",
+                "joint-components",
+                "--n-components",
+                "6",
+                "--library-prior",
+                "weak",
+            ]
+        )
+        self.assertEqual(args.extractor, "joint-components")
+        self.assertEqual(args.n_components, 6)
+        self.assertEqual(args.library_prior, "weak")
 
 
 class PlsRegressionCompatibilityTests(unittest.TestCase):

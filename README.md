@@ -26,7 +26,7 @@ This repo intentionally starts lean. It excludes the full legacy MATLAB workflow
 
 ## Current Status
 
-This is a scaffold-first bootstrap. The current code is a direct Python starting point from the original project, but this repo is not intended to be a mirror of the historical MATLAB implementation. It is the home for MetaboLiteLearner 2.0 development.
+This repo now has a first MetaboLiteLearner 2.0 algorithmic upgrade in place: the default extractor is a **joint component model** that learns chromatographic structure, spectra, and sample-level abundance variation from the full GC/MS matrices before the downstream rewiring learner runs. The legacy bulk-TIC peak extractor is still available with `--extractor legacy-peaks`.
 
 ## Quick Start
 

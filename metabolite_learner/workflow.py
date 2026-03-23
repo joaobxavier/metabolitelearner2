@@ -13,6 +13,7 @@ from scipy.stats import pearsonr
 from statsmodels.stats.anova import anova_lm
 
 from .extract import extract_spectra_and_integrate
+from .joint_extract import extract_joint_components
 from .pls import MetaboLiteLearner
 
 
@@ -389,6 +390,10 @@ def run_workflow(
     max_components: int = 30,
     nrandomized: int = 1000,
     shuffle_test: bool = False,
+    extractor: str = "joint-components",
+    extractor_n_components: int | None = None,
+    supervision_strength: float = 0.35,
+    library_prior: str = "off",
 ) -> WorkflowResult:
     gcms_csv_dir = Path(gcms_csv_dir)
     extracted_peaks_dir = Path(extracted_peaks_dir)
@@ -398,7 +403,21 @@ def run_workflow(
     peaks_path = extracted_peaks_dir / "tblPeaksIntegrated.csv"
     spectra_path = extracted_peaks_dir / "tblSpectra.csv"
     if regenerate_peaks or not peaks_path.exists() or not spectra_path.exists():
-        peaks_integrated, spectra = extract_spectra_and_integrate(gcms_csv_dir, extracted_peaks_dir)
+        if extractor == "joint-components":
+            extraction_result = extract_joint_components(
+                gcms_csv_dir,
+                extracted_peaks_dir,
+                n_components=extractor_n_components,
+                supervision_strength=supervision_strength,
+                library_prior=library_prior,
+                library_mat_path=kegg_mat_path,
+            )
+            peaks_integrated = extraction_result.peaks_integrated
+            spectra = extraction_result.spectra
+        elif extractor == "legacy-peaks":
+            peaks_integrated, spectra = extract_spectra_and_integrate(gcms_csv_dir, extracted_peaks_dir)
+        else:
+            raise ValueError("extractor must be 'joint-components' or 'legacy-peaks'.")
     else:
         peaks_integrated = pd.read_csv(peaks_path)
         spectra = pd.read_csv(spectra_path)

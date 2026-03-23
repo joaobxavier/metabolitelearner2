@@ -11,9 +11,14 @@ def build_parser() -> argparse.ArgumentParser:
     convert_parser.add_argument("data_dir")
     convert_parser.add_argument("output_dir")
 
-    extract_parser = subparsers.add_parser("extract-peaks", help="Extract TIC peaks and spectra from matrix CSVs.")
+    extract_parser = subparsers.add_parser("extract-peaks", help="Extract peaks or joint components from matrix CSVs.")
     extract_parser.add_argument("csv_data_dir")
     extract_parser.add_argument("output_spectra_dir")
+    extract_parser.add_argument("--extractor", choices=["joint-components", "legacy-peaks"], default="joint-components")
+    extract_parser.add_argument("--n-components", type=int, default=None)
+    extract_parser.add_argument("--supervision-strength", type=float, default=0.35)
+    extract_parser.add_argument("--library-prior", choices=["off", "weak"], default="off")
+    extract_parser.add_argument("--library-mat-path", default=None)
 
     workflow_parser = subparsers.add_parser("run-workflow", help="Run the full MetaboLiteLearner workflow.")
     workflow_parser.add_argument("--gcms-csv-dir", default="gcmsCSVs")
@@ -25,6 +30,10 @@ def build_parser() -> argparse.ArgumentParser:
     workflow_parser.add_argument("--max-components", type=int, default=30)
     workflow_parser.add_argument("--nrandomized", type=int, default=1000)
     workflow_parser.add_argument("--shuffle-test", action="store_true")
+    workflow_parser.add_argument("--extractor", choices=["joint-components", "legacy-peaks"], default="joint-components")
+    workflow_parser.add_argument("--extractor-n-components", type=int, default=None)
+    workflow_parser.add_argument("--supervision-strength", type=float, default=0.35)
+    workflow_parser.add_argument("--library-prior", choices=["off", "weak"], default="off")
     return parser
 
 
@@ -38,10 +47,23 @@ def main() -> None:
         written = convert_agilent_to_csv(args.data_dir, args.output_dir)
         print(f"Wrote {len(written)} matrix CSV files.")
     elif args.command == "extract-peaks":
-        from .extract import extract_spectra_and_integrate
+        if args.extractor == "joint-components":
+            from .joint_extract import extract_joint_components
 
-        peaks, spectra = extract_spectra_and_integrate(args.csv_data_dir, args.output_spectra_dir)
-        print(f"Extracted {len(peaks)} TIC peaks and {len(spectra)} summed spectra.")
+            result = extract_joint_components(
+                args.csv_data_dir,
+                args.output_spectra_dir,
+                n_components=args.n_components,
+                supervision_strength=args.supervision_strength,
+                library_prior=args.library_prior,
+                library_mat_path=args.library_mat_path,
+            )
+            print(f"Extracted {len(result.peaks_integrated)} joint components and {len(result.spectra)} component spectra.")
+        else:
+            from .extract import extract_spectra_and_integrate
+
+            peaks, spectra = extract_spectra_and_integrate(args.csv_data_dir, args.output_spectra_dir)
+            print(f"Extracted {len(peaks)} TIC peaks and {len(spectra)} summed spectra.")
     elif args.command == "run-workflow":
         from .workflow import run_workflow
 
@@ -55,6 +77,10 @@ def main() -> None:
             max_components=args.max_components,
             nrandomized=args.nrandomized,
             shuffle_test=args.shuffle_test,
+            extractor=args.extractor,
+            extractor_n_components=args.extractor_n_components,
+            supervision_strength=args.supervision_strength,
+            library_prior=args.library_prior,
         )
         print(
             "Completed workflow with "

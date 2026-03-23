@@ -1,0 +1,13 @@
+peakId,matchedClass,cosineSimilarity,libraryPrior
+JC006_6.47,Organic acids,0.9688421283589135,off
+JC008_6.50,Organic acids,0.9712332616846784,off
+JC012_6.51,Organic acids,0.9176964029642345,off
+JC003_6.52,Carbohydrates,0.9328735789213136,off
+JC009_6.52,Organic acids,0.9265660276305263,off
+JC001_6.54,Organic acids,0.9439819587518432,off
+JC005_9.47,Carbohydrates,0.9713520649022382,off
+JC004_12.63,Carbohydrates,0.9330553766281926,off
+JC010_17.07,Carbohydrates,0.9634968835079252,off
+JC007_17.12,Carbohydrates,0.9821204080704677,off
+JC011_17.28,Carbohydrates,0.9855992452519078,off
+JC002_18.92,Carbohydrates,0.943503965837668,off

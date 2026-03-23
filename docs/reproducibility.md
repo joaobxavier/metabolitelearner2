@@ -66,3 +66,23 @@ metabolitelearner2 run-workflow \
   --kegg-mat-path data/original_study/kegg/keggCompoundsWithFiehlibSpectrum.mat \
   --regenerate-peaks
 ```
+
+That command now uses the MetaboLiteLearner 2.0 default extractor, `joint-components`. It writes both compatibility tables for the downstream workflow and the richer component-level outputs:
+
+- `tblComponents.csv`
+- `tblComponentAbundance.csv`
+- `tblComponentSpectra.csv`
+- `tblComponentEffects.csv`
+- `tblComponentLibraryMatches.csv`
+
+To reproduce the pre-2.0 Python behavior instead, run:
+
+```bash
+metabolitelearner2 run-workflow \
+  --gcms-csv-dir data/original_study/gcmsCSVs \
+  --extracted-peaks-dir data/original_study/extractedPeaks \
+  --folds-dir data/original_study/folds \
+  --kegg-mat-path data/original_study/kegg/keggCompoundsWithFiehlibSpectrum.mat \
+  --regenerate-peaks \
+  --extractor legacy-peaks
+```
