@@ -17,6 +17,7 @@ EPSILON = 1e-8
 class JointComponentResult:
     peaks_integrated: pd.DataFrame
     spectra: pd.DataFrame
+    chromatograms: pd.DataFrame
     components: pd.DataFrame
     component_effects: pd.DataFrame
     component_matches: pd.DataFrame
@@ -264,6 +265,7 @@ def fit_joint_components_from_tensor(
     component_rows: list[dict[str, float | str]] = []
     abundance_rows: list[dict[str, float | str]] = []
     spectra_rows: list[dict[str, float | str]] = []
+    chromatogram_rows: list[dict[str, float | str]] = []
     effect_rows: list[dict[str, float | str]] = []
     match_rows: list[dict[str, float | str]] = []
 
@@ -310,6 +312,10 @@ def fit_joint_components_from_tensor(
         spectra_row.update({f"mz{mz}": float(value) for mz, value in zip(mz_grid, spectrum, strict=True)})
         spectra_rows.append(spectra_row)
 
+        chromatogram_row: dict[str, float | str] = {"peakId": peak_id}
+        chromatogram_row.update({f"rt{rt:.2f}": float(value) for rt, value in zip(time_grid, chromatogram, strict=True)})
+        chromatogram_rows.append(chromatogram_row)
+
         effect_row: dict[str, float | str] = {"peakId": peak_id, "supervisionR2": r_squared}
         for label, coefficient in zip(effect_labels, coefficients, strict=True):
             effect_row[label] = float(coefficient)
@@ -332,6 +338,8 @@ def fit_joint_components_from_tensor(
     abundance_table = abundance_table.set_index("peakId").loc[component_table["peakId"]].reset_index()
     spectra_table = pd.DataFrame(spectra_rows)
     spectra_table = spectra_table.set_index("peakId").loc[component_table["peakId"]].reset_index()
+    chromatograms_table = pd.DataFrame(chromatogram_rows)
+    chromatograms_table = chromatograms_table.set_index("peakId").loc[component_table["peakId"]].reset_index()
     effects_table = pd.DataFrame(effect_rows)
     effects_table = effects_table.set_index("peakId").loc[component_table["peakId"]].reset_index()
     matches_table = pd.DataFrame(match_rows)
@@ -340,6 +348,7 @@ def fit_joint_components_from_tensor(
     return JointComponentResult(
         peaks_integrated=abundance_table,
         spectra=spectra_table,
+        chromatograms=chromatograms_table,
         components=component_table,
         component_effects=effects_table,
         component_matches=matches_table,
@@ -386,6 +395,7 @@ def extract_joint_components(
     result.peaks_integrated.to_csv(output_root / "tblComponentAbundance.csv", index=False)
     result.spectra.to_csv(output_root / "tblSpectra.csv", index=False)
     result.spectra.to_csv(output_root / "tblComponentSpectra.csv", index=False)
+    result.chromatograms.to_csv(output_root / "tblComponentChromatograms.csv", index=False)
     result.component_effects.to_csv(output_root / "tblComponentEffects.csv", index=False)
     result.component_matches.to_csv(output_root / "tblComponentLibraryMatches.csv", index=False)
 

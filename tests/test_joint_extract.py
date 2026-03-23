@@ -46,11 +46,16 @@ class JointComponentExtractionTests(unittest.TestCase):
 
         self.assertEqual(len(result.peaks_integrated), 2)
         self.assertEqual(len(result.spectra), 2)
+        self.assertEqual(len(result.chromatograms), 2)
         self.assertIn("cellB", result.component_effects.columns)
         self.assertIn("cellL", result.component_effects.columns)
         self.assertTrue((result.component_effects["supervisionR2"] > 0.5).all())
         self.assertGreater(result.component_effects["cellB"].max(), 0.3)
         self.assertGreater(result.component_effects["cellL"].max(), 0.3)
+        self.assertEqual(
+            result.chromatograms.filter(like="rt").shape[1],
+            time_grid.size,
+        )
 
 
 if __name__ == "__main__":
