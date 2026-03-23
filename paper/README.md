@@ -9,10 +9,13 @@ This directory now contains the first full Markdown draft for the MetaboLiteLear
 - `02_methods.md`: published workflow restated against the current Python implementation
 - `03_results.md`: published results narrative, with the current repo baseline used as supporting infrastructure rather than as the source of scientific claims
 - `04_discussion.md`: interpretation, limitations, and forward-looking positioning for 2.0
+- `05_references.md`: minimal bibliography for the current draft
 - `outline.md`: updated paper map showing how the current section files fit together
 - `source_papers/`: archived source PDFs, including the published Methods paper
 - `notes/`: supporting notes and future drafting material
 - `figures/`: manuscript-specific figure assets to be added as the 2.0 paper evolves
+- `peer_review_critique.md`: first-pass external-review style critique of the draft
+- `peer_review_reassessment.md`: second-pass check of what the revision improved and what remains
 - `bibliography/`: citation assets and future reference files
 
 ## Writing Principle
@@ -31,3 +34,4 @@ That separation is deliberate. The next drafting rounds can extend the claims on
 - current learner implementation: [`../metabolite_learner/pls.py`](../metabolite_learner/pls.py)
 - staged baseline data and outputs: [`../data/original_study`](../data/original_study)
 - previous baseline run report: [`../docs/reports/previous_dataset_run.md`](../docs/reports/previous_dataset_run.md)
+- paper revision plan: [`../plans/paper_revision_plan.md`](../plans/paper_revision_plan.md)

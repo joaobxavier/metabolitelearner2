@@ -7,6 +7,8 @@
 3. Define the first MetaboLiteLearner 2.0 research hypotheses and evaluation criteria.
 4. Build a reproducible experiment layer that can regenerate figures and tables from external datasets.
 5. Draft the companion paper sections around motivation, method, benchmarks, and biological interpretation.
+6. Revise the paper from first-pass reviewer critique: clarify the manuscript identity, restore missing method detail, add references, and promote paper-facing figures.
+7. Replace the bootstrap 2024 restatement with a genuine 2.0 contribution: new experiments, benchmark comparisons, uncertainty analysis, and a publication-ready figure set.
 
 ## Open Technical Questions
 

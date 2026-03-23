@@ -212,11 +212,21 @@ def _prepare_kegg_projection(learner: MetaboLiteLearner, kegg_mat: Path) -> pd.D
 
 
 def _plot_loadings(learner: MetaboLiteLearner, output_dir: Path, kegg_mat: Path) -> Path:
-    figure = plt.figure(figsize=(7.065, 5.59), constrained_layout=True)
-    grid = figure.add_gridspec(5, 2, width_ratios=[1.25, 1.0])
-    ax_beta = figure.add_subplot(grid[:3, 0])
-    ax_yload = figure.add_subplot(grid[3:, 0])
-    right_axes = [figure.add_subplot(grid[idx, 1]) for idx in range(5)]
+    kegg_table = _prepare_kegg_projection(learner, kegg_mat)
+    displayed_components = min(
+        5,
+        learner.nopt,
+        sum(column.startswith("latent") for column in kegg_table.columns) if kegg_table is not None else learner.nopt,
+    )
+    displayed_components = max(displayed_components, 1)
+
+    figure_height = 4.8 + 0.9 * displayed_components
+    figure = plt.figure(figsize=(8.2, figure_height), constrained_layout=True)
+    outer = figure.add_gridspec(2, 2, width_ratios=[1.15, 1.75], height_ratios=[1.0, 1.0])
+    ax_beta = figure.add_subplot(outer[0, 0])
+    ax_yload = figure.add_subplot(outer[1, 0])
+    right_grid = outer[:, 1].subgridspec(displayed_components, 1, hspace=0.05)
+    right_axes = [figure.add_subplot(right_grid[idx, 0]) for idx in range(displayed_components)]
 
     beta_x = learner.beta[1:, 0]
     beta_y = learner.beta[1:, 1] if learner.beta.shape[1] > 1 else learner.beta[1:, 0]
@@ -230,12 +240,12 @@ def _plot_loadings(learner: MetaboLiteLearner, output_dir: Path, kegg_mat: Path)
     ax_beta.axvline(0, color="black", linestyle="--", linewidth=1)
     ax_beta.set_xlabel("log_2(FC) in brain-homing cells")
     ax_beta.set_ylabel("log_2(FC) in lung-homing cells")
+    ax_beta.set_title("Fragment and reference projection", fontsize=10, loc="left")
     ax_beta.set_xlim(-2, 2)
     ax_beta.set_ylim(-3, 3)
     ax_beta.set_aspect("equal", adjustable="box")
     ax_beta.grid(True)
 
-    kegg_table = _prepare_kegg_projection(learner, kegg_mat)
     if kegg_table is not None and not kegg_table.empty:
         categories = list(pd.Categorical(kegg_table["metClassLevel1"]).categories)
         cmap = plt.get_cmap("tab10")
@@ -251,34 +261,41 @@ def _plot_loadings(learner: MetaboLiteLearner, output_dir: Path, kegg_mat: Path)
                 color=color_map[category],
                 edgecolors="none",
             )
-        ax_beta.legend(loc="lower right", fontsize=7, title=None)
+        ax_beta.legend(loc="lower left", fontsize=7, title=None, frameon=True)
 
         jitter_rng = np.random.default_rng(0)
-        displayed_components = min(5, learner.nopt, sum(column.startswith("latent") for column in kegg_table.columns))
+        display_labels = {
+            "Carbohydrates": "Carbo-\nhydrates",
+            "Hormones and transmitters": "Hormones and\ntransmitters",
+            "Nucleic acids": "Nucleic\nacids",
+            "Organic acids": "Organic\nacids",
+        }
         for component_index, axis in enumerate(right_axes, start=1):
             axis.axhline(0, color="black", linewidth=1)
             axis.grid(True, axis="y")
-            if component_index <= displayed_components:
-                field = f"latent{component_index}"
-                means = []
-                for category_index, category in enumerate(categories):
-                    subset = kegg_table.loc[kegg_table["metClassLevel1"] == category, field].to_numpy(dtype=float)
-                    x_values = category_index + jitter_rng.uniform(-0.1, 0.1, size=subset.size)
-                    axis.scatter(x_values, subset, s=10, alpha=0.25, color="tab:blue", edgecolors="none")
-                    means.append(float(np.mean(subset)))
-                axis.scatter(range(len(categories)), means, marker="_", s=400, linewidths=2.5, color="tab:blue")
-                axis.set_ylabel(f"Input into\nlatent component {component_index}")
-                axis.set_ylim(-0.4, 0.6)
-            else:
-                axis.set_ylabel(f"Input into\nlatent component {component_index}")
-                axis.set_ylim(-0.4, 0.6)
+            field = f"latent{component_index}"
+            means = []
+            for category_index, category in enumerate(categories):
+                subset = kegg_table.loc[kegg_table["metClassLevel1"] == category, field].to_numpy(dtype=float)
+                x_values = category_index + jitter_rng.uniform(-0.1, 0.1, size=subset.size)
+                axis.scatter(x_values, subset, s=10, alpha=0.25, color="tab:blue", edgecolors="none")
+                means.append(float(np.mean(subset)))
+            axis.scatter(range(len(categories)), means, marker="_", s=400, linewidths=2.5, color="tab:blue")
+            axis.set_title(f"Latent component {component_index}", fontsize=9, loc="left")
+            axis.set_ylabel("Input")
+            axis.set_ylim(-0.4, 0.6)
             axis.set_xlim(-0.5, len(categories) - 0.5 if kegg_table is not None else 6.5)
             if component_index < len(right_axes):
                 axis.set_xticks(range(len(categories)))
                 axis.set_xticklabels([])
             else:
                 axis.set_xticks(range(len(categories)))
-                axis.set_xticklabels(categories, rotation=25, ha="right", fontsize=7)
+                axis.set_xticklabels(
+                    [display_labels.get(category, category) for category in categories],
+                    rotation=18,
+                    ha="right",
+                    fontsize=7,
+                )
 
     y_loading_x = learner.y_loadings[0, : learner.nopt]
     y_loading_y = learner.y_loadings[1, : learner.nopt] if learner.y_loadings.shape[0] > 1 else np.zeros(learner.nopt, dtype=float)
@@ -290,6 +307,7 @@ def _plot_loadings(learner: MetaboLiteLearner, output_dir: Path, kegg_mat: Path)
     ax_yload.axvline(0, color="black", linestyle="--", linewidth=1)
     ax_yload.set_xlabel("log_2(FC) in brain-homing cells")
     ax_yload.set_ylabel("log_2(FC) in lung-homing cells")
+    ax_yload.set_title("Latent components in response space", fontsize=10, loc="left")
     ax_yload.set_xlim(-2, 2)
     ax_yload.set_ylim(-3, 3)
     ax_yload.set_aspect("equal", adjustable="box")
