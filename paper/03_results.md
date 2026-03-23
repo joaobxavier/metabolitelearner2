@@ -1,11 +1,33 @@
 # Results
 
-Draft status: seed notes.
+This draft section is anchored to the published 2024 manuscript and uses the repository artifacts only as supporting anchors for code and figure navigation. In the published study, the MDA-MB-231 parental, brain-homing, and lung-homing system yielded a MetaboLiteLearner Open Dataset of 153 unique spectra paired with lineage-specific log2 fold changes. The current repository also carries a reproducible Python baseline under [../data/original_study](../data/original_study), with outputs such as [../data/original_study/folds/figure_1.png](../data/original_study/folds/figure_1.png), [../data/original_study/folds/figure_2.png](../data/original_study/folds/figure_2.png), [../data/original_study/folds/figure_3.png](../data/original_study/folds/figure_3.png), and [../data/original_study/folds/peakFoldChanges.csv](../data/original_study/folds/peakFoldChanges.csv). Where the current baseline diverges numerically from the publication, the published manuscript remains the source of record for the claims in this section.
 
-Result blocks to cover:
+## Workflow Output And Open Dataset
 
-- baseline reproduction of the original study outputs in Python
-- component selection behavior and diagnostic plots
-- fragmentation-to-fold-change predictive performance
-- KEGG/Fiehn projection behavior
-- failure cases and uncertainty analysis
+The published paper first established that the GC/MS preprocessing workflow could be turned into a machine-learning-ready dataset without metabolite identification or deconvolution. All sample matrices were aligned to a common retention-time and m/z grid, aggregated into a virtual bulk sample, and used to extract peak spectra and abundance estimates. This produced the MetaboLiteLearner Open Dataset, consisting of 153 unique spectra linked to log2 fold changes for brain-homing and lung-homing cells. The corresponding workflow logic in the current repository lives in [../metabolite_learner/extract.py](../metabolite_learner/extract.py) and [../metabolite_learner/workflow.py](../metabolite_learner/workflow.py), while the current staged tables are available in [../data/original_study/extractedPeaks](../data/original_study/extractedPeaks) and [../data/original_study/folds/peakFoldChanges.csv](../data/original_study/folds/peakFoldChanges.csv).
+
+This workflow result matters because it defines the unit of analysis. MetaboLiteLearner does not treat each biological sample as a supervised-learning example. It treats each peak-spectrum pair as a data point and each pair of lineage fold changes as the label. That move is what expands a 36-sample experiment into a dataset large enough to support supervised learning while preserving a direct link back to measured fragmentation structure.
+
+## Predictive Performance And Component Selection
+
+The published cross-validation analysis showed the usual bias-variance tradeoff. As the number of latent components increased from 1 to 30, training error decreased monotonically, whereas test error reached its minimum at 11 components before rising again. Following the one-standard-error rule, the paper chose a more conservative operating model with five latent components. That five-component model achieved a reported correlation of ρ = 0.39 between predicted and observed log2 fold changes, with P-value ≤ 0.01. The repository’s current Python implementation expresses the same logic in [../metabolite_learner/pls.py](../metabolite_learner/pls.py), and the present-day diagnostic renderings are stored in [../data/original_study/folds/figure_1.png](../data/original_study/folds/figure_1.png) and [../data/original_study/folds/learner_diagnostics.png](../data/original_study/folds/learner_diagnostics.png).
+
+The key result here is not that a particular component count won. It is that useful predictive signal existed at all in a small dataset of unidentified metabolites, and that the signal persisted under held-out evaluation. The repository baseline should therefore be read as an executable rendering of the same diagnostic pattern rather than as a replacement for the published numbers.
+
+## Variance Explained And Latent Structure
+
+The five-component model trained on the full published dataset explained 32% of the predictor variance and 68% of the response variance. That asymmetry is central to the paper’s interpretation: even when only a modest fraction of spectral variance is captured, the learned latent space can still align strongly with biologically relevant response variation. This distinction is visible in the variance panels associated with the learner, and the current Python baseline renders analogous plots in [../data/original_study/folds/variance_explained.png](../data/original_study/folds/variance_explained.png).
+
+Beyond fit quality, the latent components were interpretable. Components 1 and 3 corresponded to metabolites with decreased levels in both organ-homing lineages, while components 2 and 5 captured metabolites with increased levels in both. Component 4 was the most biologically distinctive because it separated brain-homing from lung-homing behavior rather than summarizing a shared shift. The manuscript’s interpretive point was therefore not simply that the model compresses data, but that the compression organizes the response space into biologically legible directions.
+
+## Chemical Interpretation Through Fragments And Reference Projections
+
+The paper then used fragment coefficients and reference-library projections to attach biochemical intuition to the latent model. In the biplot of fragment vectors, m/z 104 was associated with increases in both cell types, whereas m/z 306 was associated with decreases. These fragment-level signals were not presented as direct metabolite identifications; they were presented as structural clues about what the learner had discovered. The current repository’s closest analogue is [../data/original_study/folds/loadings.png](../data/original_study/folds/loadings.png), generated by [../metabolite_learner/workflow.py](../metabolite_learner/workflow.py).
+
+Projection of 263 KEGG/Fiehn reference spectra further suggested that most metabolites changed in the same direction in both organ-homing lineages, while subsets of carbohydrates and nucleic-acid-related compounds showed stronger lung-specific increases. Component-level inspection emphasized that amino acids largely followed the shared-decrease trend captured by component 1, whereas carbohydrates and deoxyribonucleosides contributed more strongly to the lineage-separating component 4. These results were interpreted as metabolically plausible and consistent with prior targeted metabolomics in the same cell system, not as definitive pathway assignments.
+
+## Validation Against Chance Structure And Present-Day Baseline
+
+The published shuffle test reinforced that MetaboLiteLearner was recovering more than a numerical artifact. When the fold-change labels were randomized 1,000 times, model error was consistently worse than in the real dataset. This is the right claim level for the paper: the learner captures a real association between fragmentation structure and rewiring labels, but it does not by itself establish mechanism. The same validation logic is implemented in [../metabolite_learner/pls.py](../metabolite_learner/pls.py) and surfaced in the current baseline diagnostics.
+
+For this 2.0 writing kickoff, the current repository baseline plays a different role from the published paper. It provides committed files, figures, and code paths that make the old story auditable in Python. The dedicated run summary in [../docs/reports/previous_dataset_run.md](../docs/reports/previous_dataset_run.md) documents the present baseline outputs, including the current 125-peak and 3-component snapshot. Those files are useful for development and reproducibility, but the scientific claims in this section should continue to track the 2024 manuscript.

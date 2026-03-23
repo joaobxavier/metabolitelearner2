@@ -4,24 +4,35 @@
 
 MetaboLiteLearner 2.0: learning biologically useful metabolic rewiring signal from fragmentation structure alone
 
-## Paper Arc
+## Current Draft Logic
 
-1. Motivation
-   Why metabolite identification remains a bottleneck for adaptive metabolomics.
-2. Concept
-   Why fragmentation structure can be treated as a predictive representation of metabolic adaptation.
-3. Method
-   The MetaboLiteLearner 2.0 workflow, modeling choices, and interpretability constraints.
-4. Benchmarks
-   Original lineage dataset plus any expanded evaluation suite.
-5. Results
-   Predictive performance, latent structure, biological interpretation, and failure modes.
-6. Discussion
-   What fragmentation-only learning can support, and what still requires annotation.
+The manuscript currently functions as a "write up the previous version first" pass. That means the immediate goal is not to claim a new 2.0 result set, but to restate the published 2024 paper in a cleaner Markdown structure while attaching it to the current Python codebase and baseline assets in this repository.
 
-## Expected Deliverables
+## Section Map
 
-- a sharper theoretical framing than the original methods paper
-- a cleaner Python implementation as the reference code
-- reproducible experiment definitions
-- manuscript-ready figures and tables
+1. Abstract
+   The problem, the fragmentation-first representation, the original validation result, and the 2.0 framing boundary.
+2. Introduction
+   Why metabolite identification is a bottleneck, why fragmentation structure can be predictive before identification, and why interpretability matters.
+3. Methods
+   The published workflow restated through the current Python implementation:
+   data ingestion, peak extraction, fold-change estimation, PLSR/SIMPLS learning, validation, and interpretability outputs.
+4. Results
+   The published result narrative:
+   the 153-spectrum MLOD, component selection, predictive fit, variance explained, fragment-level interpretation, KEGG/Fiehn projections, and the shuffle-test control.
+5. Discussion
+   What the model learns, what it does not learn, where identification still matters, and what a 2.0 expansion should test next.
+
+## Near-Term Writing Tasks
+
+- tighten the prose so it reads as a manuscript rather than as a repository narrative
+- add citations into `bibliography/`
+- decide which current baseline figures should be promoted into manuscript figures versus kept as development artifacts
+- mark exactly where the future 2.0 experiments will replace or extend the published-paper narrative
+
+## Future 2.0 Expansion Points
+
+- benchmark updated Python results against the published MATLAB-era claims
+- add clearer failure analysis and uncertainty reporting
+- test whether fragmentation-space learning transfers across datasets, sample-prep regimes, or instrument classes
+- separate "published prior result" text from "new 2.0 contribution" text once the new experiments exist

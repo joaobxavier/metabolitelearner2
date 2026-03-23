@@ -1,9 +1,7 @@
 # Abstract
 
-Draft status: placeholder.
+Metabolic rewiring allows cells to adapt to changing nutrients, signals, and tissue environments, but metabolomics still often treats the underlying chemistry as a cataloging problem rather than a predictive one. In the 2024 MetaboLiteLearner paper, we argued that electron ionization fragmentation patterns already contain structured information about how metabolites behave in rewired cells, even when those metabolites are not identified in advance. The published manuscript is archived in [source_papers/MetaboLiteLearner_published_paper.pdf](source_papers/MetaboLiteLearner_published_paper.pdf), and this repository keeps a reproducible baseline figure set in [../data/original_study/folds/figure_1.png](../data/original_study/folds/figure_1.png), [../data/original_study/folds/figure_3.png](../data/original_study/folds/figure_3.png), and [../data/original_study/folds/loadings.png](../data/original_study/folds/loadings.png).
 
-Target:
+MetaboLiteLearner operationalizes that idea with a lightweight supervised model that uses GC/MS scan-mode EI spectra as a 550-dimensional representation of each metabolite and predicts log2 fold-change responses for organ-homing cell states. In the original study, the method was trained on the MetaboLiteLearner Open Dataset derived from MDA-MB-231 parental, brain-homing, and lung-homing cells, using partial least squares regression to connect spectral structure to rewiring without requiring metabolite identification or prior network knowledge. The implementation basis for the 2.0 workspace is visible in [../metabolite_learner/workflow.py](../metabolite_learner/workflow.py) and [../metabolite_learner/pls.py](../metabolite_learner/pls.py).
 
-- 1 paragraph on the problem
-- 1 paragraph on the representation and method
-- 1 paragraph on the validation and contribution
+The published validation showed that the model recovered nontrivial associations between fragmentation structure and abundance changes, including shared shifts across organ-homing lineages and a component that separated brain-homing from lung-homing patterns, while shuffle tests indicated that the learned signal exceeded chance structure. This 2.0 draft should preserve that empirical story while sharpening the benchmark definition, code path, and interpretability narrative around the same published data, so that the paper reads as a faithful restatement of the 2024 result set and a clearer platform for extension rather than a new claims document.
